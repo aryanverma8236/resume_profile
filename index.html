@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Secure Resume Form – Aryan</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 700px;
+      margin: 30px auto;
+      padding: 20px;
+      background: #f3f3f3;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    input, textarea {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 15px;
+    }
+
+    label {
+      font-weight: bold;
+    }
+
+    .required::after {
+      content: " *";
+      color: red;
+    }
+
+    .masked {
+      font-weight: bold;
+      color: red;
+    }
+
+    .unlocked {
+      color: green;
+    }
+
+    button {
+      margin-top: 10px;
+      padding: 10px 20px;
+      background-color: #007bff;
+      border: none;
+      color: white;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    #profileSection {
+      margin-top: 40px;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Candidate Profile Builder – Aryan</h2>
+
+  <form id="profileForm">
+    <label class="required">Full Name:</label>
+    <input type="text" id="name" required>
+
+    <label class="required">Email:</label>
+    <input type="email" id="email" required>
+
+    <label class="required">Phone:</label>
+    <input type="text" id="phone" required>
+
+    <label class="required">Upload Resume:</label>
+    <input type="file" id="resume" accept=".pdf,.doc,.docx" required>
+
+    <label class="required">Sexuality (Sensitive Info):</label>
+    <input type="text" id="sexuality" required>
+
+    <label class="required">Expected CTC (Sensitive Info):</label>
+    <input type="text" id="ctc" required>
+
+    <button type="submit">Generate Profile</button>
+  </form>
+
+  <div id="profileSection">
+    <h3>🧾 Candidate Profile:</h3>
+    <p><b>Name:</b> <span id="d_name"></span></p>
+    <p><b>Email:</b> <span id="d_email"></span></p>
+    <p><b>Phone:</b> <span id="d_phone"></span></p>
+    <p><b>Resume:</b> <span id="d_resume"></span></p>
+
+    <hr>
+    <h4>🔐 Personal Information (Restricted)</h4>
+    <p><b>Sexuality:</b> <span id="d_sexuality" class="masked">********</span></p>
+    <p><b>Expected CTC:</b> <span id="d_ctc" class="masked">********</span></p>
+
+    <button onclick="unlockInfo()">🔓 Unlock Private Info</button>
+  </div>
+
+  <script>
+    let savedSexuality = "";
+    let savedCTC = "";
+
+    document.getElementById("profileForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+
+      const resumeInput = document.getElementById("resume");
+      const resumeFile = resumeInput.files[0];
+
+      if (!resumeFile) {
+        alert("Please upload a resume.");
+        return;
+      }
+
+      // Get resume file name
+      const resumeName = resumeFile.name;
+
+      // Save non-sensitive data
+      document.getElementById("d_name").innerText = document.getElementById("name").value;
+      document.getElementById("d_email").innerText = document.getElementById("email").value;
+      document.getElementById("d_phone").innerText = document.getElementById("phone").value;
+      document.getElementById("d_resume").innerText = resumeName;
+
+      // Save sensitive values
+      savedSexuality = document.getElementById("sexuality").value;
+      savedCTC = document.getElementById("ctc").value;
+
+      // Show profile section
+      document.getElementById("profileSection").style.display = "block";
+      window.scrollTo(0, document.body.scrollHeight);
+    });
+
+    function unlockInfo() {
+      const password = prompt("Enter HR password to unlock private info:");
+
+      if (password === "HR2025view") {
+        document.getElementById("d_sexuality").textContent = savedSexuality;
+        document.getElementById("d_ctc").textContent = savedCTC;
+
+        document.getElementById("d_sexuality").className = "unlocked";
+        document.getElementById("d_ctc").className = "unlocked";
+      } else {
+        alert("❌ Access Denied. Incorrect password.");
+      }
+    }
+  </script>
+
+</body>
+</html>

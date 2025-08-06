@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Candidate Profile</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="view.css">
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+</head>
+<body>
+  <div class="profile-container">
+    <div class="profile-header">
+      <h1 id="candidateName">Candidate Name</h1>
+      <p id="candidateEmail">Email</p>
+      <p id="candidatePhone">Phone</p>
+      <a id="resumeLink" href="#" target="_blank" class="resume-btn">📄 Download Resume</a>
+    </div>
+
+    <div class="profile-section">
+      <h2>Personal Details</h2>
+      <p><b>Country:</b> <span id="country"></span></p>
+      <p><b>Relocate:</b> <span id="relocate"></span></p>
+    </div>
+
+    <div class="profile-section">
+      <h2>Work Experience</h2>
+      <p><b>Job Title:</b> <span id="jobTitle"></span></p>
+      <p><b>Company:</b> <span id="companyName"></span></p>
+      <p><b>Role Description:</b> <span id="roleDescription"></span></p>
+    </div>
+
+    <div class="profile-section">
+      <h2>Education</h2>
+      <p><b>University:</b> <span id="university"></span></p>
+      <p><b>Degree:</b> <span id="degree"></span></p>
+      <p><b>CGPA:</b> <span id="cgpa"></span></p>
+    </div>
+
+    <div class="profile-section">
+      <h2>Skills</h2>
+      <div id="skills" class="skills-tags"></div>
+    </div>
+
+    <div class="profile-section">
+      <h2>Job Preferences</h2>
+      <p><b>Expected Salary:</b> <span id="expectedSalary"></span></p>
+      <p><b>Notice Period:</b> <span id="noticePeriod"></span></p>
+    </div>
+  </div>
+
+  <!-- Firebase Init -->
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyCcwHBq26pFZlZdEiUyDwrX-V3bU6ke1vQ",
+      authDomain: "resumeform-15d2a.firebaseapp.com",
+      projectId: "resumeform-15d2a",
+      storageBucket: "resumeform-15d2a.firebasestorage.app",
+      messagingSenderId: "499153818886",
+      appId: "1:499153818886:web:8c412a6f5ff5e36e2eba87",
+      measurementId: "G-4HHBRYNXJZ" 
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    const params = new URLSearchParams(window.location.search);
+    const docId = params.get("id");
+
+    if (docId) {
+      db.collection("resumes").doc(docId).get().then(doc => {
+        if (doc.exists) {
+          const data = doc.data();
+          document.getElementById("candidateName").textContent = `${data.givenName || ""} ${data.familyName || ""}`;
+          document.getElementById("candidateEmail").textContent = data.email || "Not provided";
+          document.getElementById("candidatePhone").textContent = `${data.phoneCode || ""} ${data.phoneNumber || ""}`;
+          document.getElementById("resumeLink").href = data.resumeUrl || "#";
+          document.getElementById("country").textContent = data.country || "Not provided";
+          document.getElementById("relocate").textContent = data.relocate || "Not provided";
+          document.getElementById("jobTitle").textContent = data.jobTitle || "Not provided";
+          document.getElementById("companyName").textContent = data.companyName || "Not provided";
+          document.getElementById("roleDescription").textContent = data.roleDescription || "Not provided";
+          document.getElementById("university").textContent = data.university || "Not provided";
+          document.getElementById("degree").textContent = data.degree || "Not provided";
+          document.getElementById("cgpa").textContent = data.cgpa || "Not provided";
+          document.getElementById("expectedSalary").textContent = data.expectedSalary || "Not provided";
+          document.getElementById("noticePeriod").textContent = data.noticePeriod || "Not provided";
+
+          // Skills
+          const skillsContainer = document.getElementById("skills");
+          if (data.skills && data.skills.length) {
+            data.skills.forEach(skill => {
+              const tag = document.createElement("span");
+              tag.classList.add("skill-tag");
+              tag.textContent = skill;
+              skillsContainer.appendChild(tag);
+            });
+          } else {
+            skillsContainer.innerHTML = "<i>No skills provided</i>";
+          }
+        } else {
+          document.querySelector(".profile-container").innerHTML = "<p>No data found for this candidate.</p>";
+        }
+      }).catch(err => {
+        console.error(err);
+        document.querySelector(".profile-container").innerHTML = "<p>Error loading data.</p>";
+      });
+    } else {
+      document.querySelector(".profile-container").innerHTML = "<p>Invalid link.</p>";
+    }
+  </script>
+</body>
+</html>

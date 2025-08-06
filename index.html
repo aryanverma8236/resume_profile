@@ -1,151 +1,162 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Secure Resume Form – Aryan</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      max-width: 700px;
-      margin: 30px auto;
-      padding: 20px;
-      background: #f3f3f3;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Resume Form</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
 
-    input, textarea {
-      width: 100%;
-      padding: 10px;
-      margin-bottom: 15px;
-    }
-
-    label {
-      font-weight: bold;
-    }
-
-    .required::after {
-      content: " *";
-      color: red;
-    }
-
-    .masked {
-      font-weight: bold;
-      color: red;
-    }
-
-    .unlocked {
-      color: green;
-    }
-
-    button {
-      margin-top: 10px;
-      padding: 10px 20px;
-      background-color: #007bff;
-      border: none;
-      color: white;
-      border-radius: 5px;
-      font-size: 16px;
-      cursor: pointer;
-    }
-
-    button:hover {
-      background-color: #0056b3;
-    }
-
-    #profileSection {
-      margin-top: 40px;
-      display: none;
-    }
-  </style>
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 </head>
 <body>
+  <div class="container">
+    <form id="resumeForm">
+      <!-- Page 1 -->
+      <div class="form-page" id="page1">
+        <h2>Personal Details</h2>
+        <label>Resume: <input type="file" name="resumeFile" /></label>
+        <label>How did you hear about us? <input type="text" id="refSource" name="refSource" /></label>
+        <label id="refEmailLabel" style="display:none;">Referral Email: <input type="email" name="refEmail" /></label>
 
-  <h2>Candidate Profile Builder – Aryan</h2>
+        <label>Have you worked here before?
+          <select name="workedBefore">
+            <option>No</option>
+            <option>Yes</option>
+          </select>
+        </label>
 
-  <form id="profileForm">
-    <label class="required">Full Name:</label>
-    <input type="text" id="name" required>
+        <label>Country: <input type="text" name="country" /></label>
 
-    <label class="required">Email:</label>
-    <input type="email" id="email" required>
+        <fieldset>
+          <legend>Name</legend>
+          <label>Given Name: <input type="text" name="givenName" /></label>
+          <label>Family Name: <input type="text" name="familyName" /></label>
+          <label><input type="checkbox" id="preferredCheck" /> I have a preferred name</label>
+          <div id="preferredNameBlock" style="display:none;">
+            <label>Preferred Given Name: <input type="text" name="preferredGivenName" /></label>
+            <label>Preferred Family Name: <input type="text" name="preferredFamilyName" /></label>
+          </div>
+        </fieldset>
 
-    <label class="required">Phone:</label>
-    <input type="text" id="phone" required>
+        <fieldset>
+          <legend>Contact</legend>
+          <label>City: <input type="text" name="city" /></label>
+          <label>Town: <input type="text" name="town" /></label>
+          <label>Email Address: <input type="email" name="email" /></label>
+          <label>Phone Code: <input type="text" name="phoneCode" /></label>
+          <label>Phone Number: <input type="text" name="phoneNumber" /></label>
+          <label>Device Type: <input type="text" name="deviceType" /></label>
+        </fieldset>
 
-    <label class="required">Upload Resume:</label>
-    <input type="file" id="resume" accept=".pdf,.doc,.docx" required>
+        <button type="button" onclick="nextPage(2)">Next</button>
+      </div>
 
-    <label class="required">Sexuality (Sensitive Info):</label>
-    <input type="text" id="sexuality" required>
+      <!-- Page 2 -->
+      <div class="form-page" id="page2" style="display:none;">
+        <h2>Work & Education</h2>
 
-    <label class="required">Expected CTC (Sensitive Info):</label>
-    <input type="text" id="ctc" required>
+        <fieldset>
+          <legend>Work Experience</legend>
+          <label>Job Title: <input type="text" name="jobTitle" /></label>
+          <label>Company Name: <input type="text" name="companyName" /></label>
+          <label>Location: <input type="text" name="workLocation" /></label>
+          <label><input type="checkbox" name="currentlyWorking" /> Currently working here</label>
+          <label>From: <input type="month" name="workFrom" /></label>
+          <label>To: <input type="month" name="workTo" /></label>
+          <label>Role Description: <textarea name="roleDescription"></textarea></label>
+        </fieldset>
 
-    <button type="submit">Generate Profile</button>
-  </form>
+        <fieldset>
+          <legend>Education</legend>
+          <label>University: <input type="text" name="university" /></label>
+          <label>Degree: <input type="text" name="degree" /></label>
+          <label>Field of Study: <input type="text" name="fieldOfStudy" /></label>
+          <label>CGPA: <input type="text" name="cgpa" /></label>
+          <label>From: <input type="month" name="eduFrom" /></label>
+          <label>To: <input type="month" name="eduTo" /></label>
 
-  <div id="profileSection">
-    <h3>🧾 Candidate Profile:</h3>
-    <p><b>Name:</b> <span id="d_name"></span></p>
-    <p><b>Email:</b> <span id="d_email"></span></p>
-    <p><b>Phone:</b> <span id="d_phone"></span></p>
-    <p><b>Resume:</b> <span id="d_resume"></span></p>
+          <label><input type="checkbox" id="schoolCheck" /> Include Schooling</label>
+          <div id="schoolBlock" style="display:none;">
+            <label>10th/12th School Name: <input type="text" name="schoolName" /></label>
+            <label>Year of Passing: <input type="month" name="schoolYear" /></label>
+          </div>
+        </fieldset>
 
-    <hr>
-    <h4>🔐 Personal Information (Restricted)</h4>
-    <p><b>Sexuality:</b> <span id="d_sexuality" class="masked">********</span></p>
-    <p><b>Expected CTC:</b> <span id="d_ctc" class="masked">********</span></p>
+        <fieldset>
+          <legend>Primary Skills (max 5)</legend>
+          <input type="text" id="skillsInput" placeholder="Enter skill and press Add" />
+          <button type="button" onclick="addSkill()">Add</button>
+          <ul id="skillsList"></ul>
+        </fieldset>
 
-    <button onclick="unlockInfo()">🔓 Unlock Private Info</button>
+        <label>GitHub/Project/Portfolio Links: <input type="url" name="portfolioLink" /></label>
+
+        <button type="button" onclick="nextPage(3)">Next</button>
+        <button type="button" onclick="prevPage(1)">Back</button>
+      </div>
+
+      <!-- Page 3 -->
+      <div class="form-page" id="page3" style="display:none;">
+        <h2>Job Preferences</h2>
+
+        <label>Current Location: <input type="text" name="currentLocation" /></label>
+        <label>Open to Relocate?
+          <select id="relocateSelect" name="relocate">
+            <option>No</option>
+            <option>Yes</option>
+          </select>
+        </label>
+        <label id="relocateCityLabel" style="display:none;">Preferred Cities: <input type="text" name="preferredCities" /></label>
+
+        <label>Current Annual Salary: <input type="text" name="currentSalary" /></label>
+        <label>Expected Salary: <input type="text" name="expectedSalary" /></label>
+        <label>Notice Period: <input type="text" name="noticePeriod" /></label>
+        <label>Are you in a bond currently? 
+          <select name="bond">
+            <option>No</option>
+            <option>Yes</option>
+          </select>
+        </label>
+        <label>Do you have a relative in this company? 
+          <select name="relativeInCompany">
+            <option>No</option>
+            <option>Yes</option>
+          </select>
+        </label>
+
+        <fieldset>
+          <legend>Legal & Identity</legend>
+          <label>Gender: <input type="text" name="gender" /></label>
+          <label>Sexuality: <input type="text" name="sexuality" placeholder="e.g., LGBTQ+, Straight" /></label>
+          <label>Citizenship: <input type="text" name="citizenship" /></label>
+        </fieldset>
+
+        <p><input type="checkbox" required /> I agree to the Terms and Conditions</p>
+
+        <button type="submit">Submit</button>
+        <button type="button" onclick="prevPage(2)">Back</button>
+      </div>
+    </form>
   </div>
 
+  <!-- Initialize Firebase -->
   <script>
-    let savedSexuality = "";
-    let savedCTC = "";
-
-    document.getElementById("profileForm").addEventListener("submit", function(e) {
-      e.preventDefault();
-
-      const resumeInput = document.getElementById("resume");
-      const resumeFile = resumeInput.files[0];
-
-      if (!resumeFile) {
-        alert("Please upload a resume.");
-        return;
-      }
-
-      // Get resume file name
-      const resumeName = resumeFile.name;
-
-      // Save non-sensitive data
-      document.getElementById("d_name").innerText = document.getElementById("name").value;
-      document.getElementById("d_email").innerText = document.getElementById("email").value;
-      document.getElementById("d_phone").innerText = document.getElementById("phone").value;
-      document.getElementById("d_resume").innerText = resumeName;
-
-      // Save sensitive values
-      savedSexuality = document.getElementById("sexuality").value;
-      savedCTC = document.getElementById("ctc").value;
-
-      // Show profile section
-      document.getElementById("profileSection").style.display = "block";
-      window.scrollTo(0, document.body.scrollHeight);
-    });
-
-    function unlockInfo() {
-      const password = prompt("Enter HR password to unlock private info:");
-
-      if (password === "HR2025view") {
-        document.getElementById("d_sexuality").textContent = savedSexuality;
-        document.getElementById("d_ctc").textContent = savedCTC;
-
-        document.getElementById("d_sexuality").className = "unlocked";
-        document.getElementById("d_ctc").className = "unlocked";
-      } else {
-        alert("❌ Access Denied. Incorrect password.");
-      }
-    }
+    const firebaseConfig = {
+      apiKey: "AIzaSyCcwHBq26pFZlZdEiUyDwrX-V3bU6ke1vQ",
+      authDomain: "resumeform-15d2a.firebaseapp.com",
+      projectId: "resumeform-15d2a",
+      storageBucket: "resumeform-15d2a.firebasestorage.app",
+      messagingSenderId: "499153818886",
+      appId: "1:499153818886:web:8c412a6f5ff5e36e2eba87",
+      measurementId: "G-4HHBRYNXJZ" 
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
   </script>
 
+  <script src="script.js"></script>
 </body>
 </html>
